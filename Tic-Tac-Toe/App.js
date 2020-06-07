@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Text, View, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
+import { Text, View, TouchableOpacity, Dimensions, StyleSheet, ToastAndroid } from 'react-native';
 import aiTurn from './components/AI';
 
 export default class App extends Component {
   constructor(props) {
     super(props);
+    this.abortTurn = false;
 
     this.state = {
       mode: "bot",
@@ -31,7 +32,28 @@ export default class App extends Component {
     }
   }
 
+  abort = () => {
+    this.abortTurn = true;
+    this.setState({
+      playerTurn: false
+    });
+    let ai = aiTurn(this.entities.table);
+    this.entities.turns.push({ ai });
+    winner = this.check(ai.i, ai.j, 1);
+    if (winner != 999) {
+      this.setState({
+        running: false,
+        winner: winner
+      })
+      return;
+    };
+    this.setState({
+      playerTurn: true
+    });
+  }
+
   reset = () => {
+    this.abortTurn = false;
     this.entities = this.setup();
     this.setState({
       mode: "bot",
@@ -137,6 +159,16 @@ export default class App extends Component {
     }
   }
 
+  renderAbortDialog() {
+    if (!this.abortTurn && this.state.mode == "bot") {
+      this.abortTurn = true;
+      return <TouchableOpacity style={styles.generalWrapper} onPress={this.abort}>
+        <Text style={{ fontSize: 16 }}>Tap here to let the opponent go first</Text>
+      </TouchableOpacity>
+    }
+    return <Text style={[{padding: 12, fontSize: 16, margin: 10}]}>Do your best!</Text>;
+  }
+
   render() {
     return (
       <View style={styles.wrapper}>
@@ -173,6 +205,7 @@ export default class App extends Component {
             {this.renderMove(8)}
           </TouchableOpacity>
         </View>
+        {this.renderAbortDialog()}
         {!this.state.running && <TouchableOpacity style={styles.gameOverWrapper} onPress={this.reset}>
           <View style={styles.gameOverView}>
             {this.state.winner == 0 && <Text style={[styles.gameOverText, { fontSize: 24 }]}>Draw</Text>}
@@ -201,6 +234,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  generalWrapper: {
+    borderWidth: 2,
+    borderRightWidth: 0,
+    borderLeftWidth: 0,
+    borderColor: 'black',
+    backgroundColor: 'white',
+    margin: 10,
+    padding: 10,
   },
 
   gameOverWrapper: {

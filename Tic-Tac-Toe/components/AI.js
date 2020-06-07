@@ -1,4 +1,4 @@
-function isEqual(a, b, c) {
+function isWinningStreak(a, b, c) {
     return a == b && b == c && a != 0;
 }
 
@@ -6,21 +6,21 @@ function checkState(table) {
     let winner = 999;
 
     for (let i = 0; i < 3; i++) {
-        if (isEqual(table[i][0], table[i][1], table[i][2])) {
+        if (isWinningStreak(table[i][0], table[i][1], table[i][2])) {
             winner = table[i][0];
         }
     }
 
     for (let i = 0; i < 3; i++) {
-        if (isEqual(table[0][i], table[1][i], table[2][i])) {
+        if (isWinningStreak(table[0][i], table[1][i], table[2][i])) {
             winner = table[0][i];
         }
     }
 
-    if (isEqual(table[0][0], table[1][1], table[2][2])) {
+    if (isWinningStreak(table[0][0], table[1][1], table[2][2])) {
         winner = table[0][0];
     }
-    if (isEqual(table[2][0], table[1][1], table[0][2])) {
+    if (isWinningStreak(table[2][0], table[1][1], table[0][2])) {
         winner = table[2][0];
     }
     let turnsLeft = 0;
